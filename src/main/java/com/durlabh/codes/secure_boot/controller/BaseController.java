@@ -1,5 +1,6 @@
 package com.durlabh.codes.secure_boot.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -11,6 +12,7 @@ public class BaseController {
         return "Hello World";
     }
 
+    @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping("/secure")
     public String secureHelloWorld() {
         return "Hello World But Secured";
