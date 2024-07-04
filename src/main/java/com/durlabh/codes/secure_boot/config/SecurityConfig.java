@@ -12,6 +12,7 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        // Check Why its not working
         http.authorizeHttpRequests((requests) ->
                 requests.requestMatchers("/hello").permitAll()
                         .anyRequest().authenticated()
