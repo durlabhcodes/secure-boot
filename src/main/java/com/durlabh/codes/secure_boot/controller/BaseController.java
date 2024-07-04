@@ -12,7 +12,7 @@ public class BaseController {
         return "Hello World";
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/secure")
     public String secureHelloWorld() {
         return "Hello World But Secured";
