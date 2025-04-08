@@ -1,4 +1,4 @@
-package com.durlabh.codes.secure_boot.config;
+package com.durlabh.codes.secure_boot.security;
 
 import com.durlabh.codes.secure_boot.model.Customer;
 import com.durlabh.codes.secure_boot.repository.CustomerRepository;
@@ -11,7 +11,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
