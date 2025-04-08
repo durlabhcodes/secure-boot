@@ -1,5 +1,8 @@
 package com.durlabh.codes.secure_boot.config;
 
+import com.durlabh.codes.secure_boot.model.Customer;
+import com.durlabh.codes.secure_boot.repository.CustomerRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -12,12 +15,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
+
+    private final CustomerRepository customerRepository;
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-        UserDetails user = new User(username, "Pass@123", authorities);
-        return user;
+        Customer customer = customerRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException(username));
+        List<GrantedAuthority> grantedAuthorities = List.of(new SimpleGrantedAuthority(customer.getRole()));
+        return new User(customer.getEmail(), customer.getPwd(), grantedAuthorities);
     }
 }
