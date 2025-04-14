@@ -1,0 +1,8 @@
+package com.durlabh.codes.secure_boot;
+
+public class Constants {
+    public static final String SECRET_KEY = "15d0eedbb2b90beb036d6be101030a15926c7a8e2adaafe4fb1a510013d83f3ffa6de59f047db2846319ab1fb39bec677b9c461c0201c54c75f299c5188fa5fb3a21bb571aeb7a8e2b814738acd1e04b6cbebc6c2a3d3037146055d1b89933f7fe007a8c5399cc95667e3c61c944e1d188d84357dbb2b4d6f8a0009e307319b8f35348d50ee61cf2585f655d14207bc59840ff768e24e4ca03cc62b057341fa1a23b179a0467f845defb005ec6b191e7daa6635391313a3e84cf2a722705b3a287d5570af7ec67df1308a1144189a9d28bc9e198fc664c6fc9a60755ad592feb78b7d2bd9919af2eceb673fdce395ce0d94f455c9a838fb1999b53aee887bd64";
+    public static final String ISSUER = "durlabhcodes";
+    public static final String JWT_HEADER = "Authorization";
+
+}
