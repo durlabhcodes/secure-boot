@@ -6,6 +6,7 @@ import com.durlabh.codes.secure_boot.security.UsernamePwdAuthProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.Customizer;
@@ -14,10 +15,14 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
@@ -31,11 +36,13 @@ import java.util.Collections;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    /*@Bean
+    @Order(1)
+    SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
         // Check Why its not working
         http.
-                cors(cors -> cors.configurationSource(new CorsConfigurationSource() {
+                securityMatcher("/api/**")
+                .cors(cors -> cors.configurationSource(new CorsConfigurationSource() {
                     @Override
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                         CorsConfiguration config = new CorsConfiguration();
@@ -47,25 +54,60 @@ public class SecurityConfig {
                         return config;
                     }
                 }))
-                .addFilterAfter(new JWTGenerationFilter(), BasicAuthenticationFilter.class)
                 .addFilterBefore(new JWTValidationFilter(), BasicAuthenticationFilter.class)
+                .addFilterAfter(new JWTGenerationFilter(), BasicAuthenticationFilter.class)
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        .ignoringRequestMatchers("/login", "/apiLogin"))
+                        .ignoringRequestMatchers( "/api/login"))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(request ->
+                        request
+                                .requestMatchers( "/api/login")
+                                .permitAll()
+                                .anyRequest()
+                                .authenticated()
+                )
+                .httpBasic(Customizer.withDefaults())
+                .sessionManagement((session) ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                );
+        return http.build();
+    }*/
+
+    @Bean
+    //@Order(2)
+    SecurityFilterChain formSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .addFilterAfter(new JWTGenerationFilter(), BasicAuthenticationFilter.class)
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(request ->
                     request
-                            .requestMatchers("/hello", "/login", "/apiLogin")
-                            .permitAll()
+                            /*.requestMatchers("/hello", "/login")
+                            .permitAll()*/
                             .anyRequest()
                             .authenticated()
         )
-        .httpBasic(Customizer.withDefaults())
-        .sessionManagement((session) ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        );
+        .formLogin(Customizer.withDefaults())
+        .oauth2Login(Customizer.withDefaults());
         return http.build();
     }
+
+    @Bean
+    ClientRegistrationRepository clientRegistrationRepository() {
+        return new InMemoryClientRegistrationRepository(
+                githubClientRegistration("3371af9e4d4297b64c80",
+                        "a389c80a8e48cc795297b4731d1e3969033f97eb"));
+    }
+
+    private ClientRegistration githubClientRegistration(String clientId, String clientSecret) {
+        return CommonOAuth2Provider.GITHUB
+                .getBuilder("github")
+                .clientId(clientId)
+                .clientSecret(clientSecret)
+                .build();
+    }
+
+
 
     @Bean
     PasswordEncoder passwordEncoder() {

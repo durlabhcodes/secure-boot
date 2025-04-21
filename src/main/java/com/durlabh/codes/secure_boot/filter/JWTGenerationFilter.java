@@ -49,6 +49,7 @@ public class JWTGenerationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return !request.getServletPath().startsWith("/login");
+        return !request.getServletPath().startsWith("/api/login") &&
+                !request.getServletPath().startsWith("/login");
     }
 }
