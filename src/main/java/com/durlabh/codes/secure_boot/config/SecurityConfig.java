@@ -94,9 +94,10 @@ public class SecurityConfig {
 
     @Bean
     ClientRegistrationRepository clientRegistrationRepository() {
+        //add Github client id and secret here
         return new InMemoryClientRegistrationRepository(
-                githubClientRegistration("3371af9e4d4297b64c80",
-                        "a389c80a8e48cc795297b4731d1e3969033f97eb"));
+                githubClientRegistration("",
+                        ""));
     }
 
     private ClientRegistration githubClientRegistration(String clientId, String clientSecret) {
