@@ -27,7 +27,7 @@ import static com.durlabh.codes.secure_boot.Constants.*;
 public class JWTGenerationFilter extends OncePerRequestFilter {
 
 
-    @Override
+    // @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(authentication != null) {

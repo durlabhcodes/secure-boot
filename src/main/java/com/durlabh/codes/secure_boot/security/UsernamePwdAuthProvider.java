@@ -11,12 +11,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-@Component
-@RequiredArgsConstructor
+//@Component
+// @RequiredArgsConstructor
 public class UsernamePwdAuthProvider implements AuthenticationProvider {
 
-    private final UserDetailsService userDetailsService;
-    private final PasswordEncoder passwordEncoder;
+    private UserDetailsService userDetailsService;
+    private  PasswordEncoder passwordEncoder;
 
 
     @Override

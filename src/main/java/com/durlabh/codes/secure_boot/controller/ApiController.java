@@ -28,7 +28,7 @@ import static com.durlabh.codes.secure_boot.Constants.SECRET_KEY;
 @RequiredArgsConstructor
 public class ApiController {
 
-    private final AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> apiLogin (@RequestBody LoginRequestDTO loginRequest) {

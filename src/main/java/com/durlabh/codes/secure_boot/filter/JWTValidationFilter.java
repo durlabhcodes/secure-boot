@@ -19,7 +19,7 @@ import java.io.IOException;
 import static com.durlabh.codes.secure_boot.Constants.JWT_HEADER;
 import static com.durlabh.codes.secure_boot.Constants.SECRET_KEY;
 
-@Component
+//@Component
 public class JWTValidationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {

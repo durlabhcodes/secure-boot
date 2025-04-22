@@ -23,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
@@ -36,89 +37,23 @@ import java.util.Collections;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    /*@Bean
-    @Order(1)
-    SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
-        // Check Why its not working
-        http.
-                securityMatcher("/api/**")
-                .cors(cors -> cors.configurationSource(new CorsConfigurationSource() {
-                    @Override
-                    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
-                        CorsConfiguration config = new CorsConfiguration();
-                        config.setAllowCredentials(true);
-                        config.setAllowedOrigins(Collections.singletonList("http://localhost:9999"));
-                        config.setAllowedMethods(Collections.singletonList("*"));
-                        config.setAllowedHeaders(Collections.singletonList("*"));
-                        config.setMaxAge(3600L);
-                        return config;
-                    }
-                }))
-                .addFilterBefore(new JWTValidationFilter(), BasicAuthenticationFilter.class)
-                .addFilterAfter(new JWTGenerationFilter(), BasicAuthenticationFilter.class)
-                .csrf(csrf -> csrf
-                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        .ignoringRequestMatchers( "/api/login"))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(request ->
-                        request
-                                .requestMatchers( "/api/login")
-                                .permitAll()
-                                .anyRequest()
-                                .authenticated()
-                )
-                .httpBasic(Customizer.withDefaults())
-                .sessionManagement((session) ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                );
-        return http.build();
-    }*/
-
     @Bean
-    //@Order(2)
     SecurityFilterChain formSecurityFilterChain(HttpSecurity http) throws Exception {
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(new KeyCloakTokenConverter());
+
         http
-                .addFilterAfter(new JWTGenerationFilter(), BasicAuthenticationFilter.class)
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(request ->
-                    request
-                            /*.requestMatchers("/hello", "/login")
-                            .permitAll()*/
-                            .anyRequest()
-                            .authenticated()
-        )
-        .formLogin(Customizer.withDefaults())
-        .oauth2Login(Customizer.withDefaults());
+                .authorizeHttpRequests((requests) -> requests
+                        .requestMatchers("/myAccount").hasRole("USER")
+                        .requestMatchers("/myBalance").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/myLoans").authenticated()
+                        .requestMatchers("/myCards").hasRole("USER")
+                        .requestMatchers("/user").authenticated()
+                        .requestMatchers("/notices", "/contact", "/error", "/register").permitAll())
+                .oauth2ResourceServer(rsc -> rsc
+                        .jwt(jwtConfigurer -> jwtConfigurer.jwtAuthenticationConverter(jwtAuthenticationConverter)));
         return http.build();
-    }
-
-    @Bean
-    ClientRegistrationRepository clientRegistrationRepository() {
-        return new InMemoryClientRegistrationRepository(
-                githubClientRegistration("3371af9e4d4297b64c80",
-                        "a389c80a8e48cc795297b4731d1e3969033f97eb"));
-    }
-
-    private ClientRegistration githubClientRegistration(String clientId, String clientSecret) {
-        return CommonOAuth2Provider.GITHUB
-                .getBuilder("github")
-                .clientId(clientId)
-                .clientSecret(clientSecret)
-                .build();
-    }
-
-
-
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-    }
-
-    @Bean
-    AuthenticationManager authenticationManager(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) throws Exception {
-        UsernamePwdAuthProvider provider = new UsernamePwdAuthProvider(userDetailsService, passwordEncoder);
-        ProviderManager manager = new ProviderManager(provider);
-        manager.setEraseCredentialsAfterAuthentication(false);
-        return manager;
     }
 }
